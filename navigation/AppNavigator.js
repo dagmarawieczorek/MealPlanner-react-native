@@ -1,4 +1,9 @@
 import React from 'react';
+import { Text } from 'react-native';
+import { Mutation } from "react-apollo";
+import { AUTHORIZE } from './../api/api'
+
+
 // import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
@@ -25,9 +30,29 @@ class SignInScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Button title="Sign in!" onPress={this._signInAsync} />
-      </View>
+      <Mutation mutation={AUTHORIZE}
+        onCompleted={({ token }) => {
+          console.log(token);
+        }}>
+        {(authorize, { error, data, loading }) => {
+          if (loading) return <Text>loading...</Text>
+
+          return (
+            <View style={styles.container}>
+              <Text>Bad: {error.graphQLErrors.map(({ message }, i) => (
+                <span key={i}>{message}</span>
+              ))}
+              </Text>
+
+              <Button title="Sign in!" onPress={e => {
+                e.preventDefault();
+                authorize({ variables: { username: "admin", password: "admin" } })
+              }} />
+            </View>
+          )
+        }
+        }
+      </Mutation>
     );
   }
 
