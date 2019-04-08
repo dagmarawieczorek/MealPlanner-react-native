@@ -1,45 +1,43 @@
 import ApolloClient from "apollo-boost";
-import { createNetworkInterface } from 'react-apollo';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { createHttpLink } from 'apollo-link-http'
-import { setContext } from 'apollo-link-context'
-const GRAPHQL_ENDPOINT = `https://myfancyappname.herokuapp.com/v1alpha1/graphql`;
+import {
+  ActivityIndicator,
+  AsyncStorage,
+  Button,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 let instance = null;
-let httpLink = createHttpLink({
-  uri: 'http://localhost:8080/graphql',
-})
 
-let authLink = setContext((_, { headers }) => {
-  return {
-    headers: {
-      ...headers,
-      authorization: this.token ? `Bearer ${this.token}` : '',
-    },
-  }
-})
+const API_URI = 'http://192.168.0.45:8080/graphql';
 
 class ApiClient {
 
-    constructor() {
-        if (!instance) {
-              this.client = new ApolloClient({
-                link: authLink.concat(httpLink),
-                cache: new InMemoryCache()
-              });
+  constructor() {
+    if (!instance) {
+      this.client = new ApolloClient({
+        uri: API_URI,
+        request: async operation => {
+          const userToken = await AsyncStorage.getItem('userToken');
+          if (userToken) {
+            console.log("UsingToken " + userToken);
+            operation.setContext({
+              headers: {
+                authorization:  `Bearer ${userToken}`
+              }
+            });
+          }
         }
-
-        return instance;
+      });
     }
 
-    setToken(token) {
-        this.token = token;
-    }
+    return instance;
+  }
 
-    getClient() {
-      console.log("!!!!" + this.client);
-      return this.client;
-    }
+  getClient() {
+    return this.client;
+  }
 }
 
 export default ApiClient;

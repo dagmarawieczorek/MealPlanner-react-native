@@ -22,6 +22,7 @@ import {
   View,
 } from 'react-native';
 import { createStackNavigator, createSwitchNavigator, createAppContainer } from 'react-navigation';
+import ApiClient from '../api/apollo';
 
 class SignInScreen extends React.Component {
   static navigationOptions = {
@@ -36,13 +37,23 @@ class SignInScreen extends React.Component {
         }}>
         {(authorize, { error, data, loading }) => {
           if (loading) return <Text>loading...</Text>
+          if (error) return (
+            <Text>Bad: {error.graphQLErrors.map(({ message }, i) => (
+              <span key={i}>{message}</span>
+            ))}
+            </Text>
+          );
+
+          if (data) {
+            this._signInAsync(data.authorize.idToken);
+
+            // return (
+              // <Text>{JSON.stringify(data)}}</Text>
+            // );
+          } 
 
           return (
             <View style={styles.container}>
-              <Text>Bad: {error.graphQLErrors.map(({ message }, i) => (
-                <span key={i}>{message}</span>
-              ))}
-              </Text>
 
               <Button title="Sign in!" onPress={e => {
                 e.preventDefault();
@@ -56,8 +67,9 @@ class SignInScreen extends React.Component {
     );
   }
 
-  _signInAsync = async () => {
-    await AsyncStorage.setItem('userToken', 'abc');
+  
+  _signInAsync = async (token) => {
+    await AsyncStorage.setItem('userToken', token);
     this.props.navigation.navigate('App');
   };
 }
