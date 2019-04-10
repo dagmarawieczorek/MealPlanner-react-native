@@ -20,8 +20,8 @@ export default class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View >
+        <ScrollView>
           <View style={styles.welcomeContainer}>
             <Image
               source={
@@ -42,7 +42,6 @@ export default class HomeScreen extends React.Component {
               <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
             </View>
 
-            <Button title="Actually, sign me out :)" onPress={this._signOutAsync} />
       </View>
 
           <View style={styles.helpContainer}>
